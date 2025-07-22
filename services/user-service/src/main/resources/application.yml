@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: user-service
+  data:
+    rest:
+      base-path: /api/v1
+  datasource:
+    password: root
+    url: jdbc:postgresql://localhost:5432/student_guide
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+security:
+  jwt:
+    secret-key: this123-dasd123qwe123
+    expiration-time: 7200000
