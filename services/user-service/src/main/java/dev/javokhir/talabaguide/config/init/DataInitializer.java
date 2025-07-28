@@ -23,7 +23,7 @@ public class DataInitializer {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; // Required for encoding admin password
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public CommandLineRunner init(AuthorityRepository authorityRepository) {
@@ -36,6 +36,15 @@ public class DataInitializer {
                         role.setCode("ROLE_ADMIN");
                         role.setDescription("INIT ADMIN ROLE");
                         role.setAuthorities(new HashSet<>(authorityRepository.findAll()));
+                        return roleRepository.save(role);
+                    });
+
+            Role internalRole = roleRepository.findByCode("ROLE_INTERNAL")
+                    .orElseGet(() -> {
+                        Role role = new Role();
+                        role.setName("INTERNAL");
+                        role.setCode("ROLE_INTERNAL");
+                        role.setDescription("FOR SERVICES");
                         return roleRepository.save(role);
                     });
 
