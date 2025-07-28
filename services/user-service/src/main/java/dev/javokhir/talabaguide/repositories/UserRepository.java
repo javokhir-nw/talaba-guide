@@ -1,6 +1,7 @@
 package dev.javokhir.talabaguide.repositories;
 
 import dev.javokhir.talabaguide.models.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
             """)
     Boolean checkIsExistEmail(String email, Long userId);
 
+    @EntityGraph(attributePaths = {"role", "role.authorities"})
     @Query("select u from User u where lower(u.username) = lower(?1) and u.status = 'ACTIVE' ")
-    Optional<UserDetails> findByUsername(String username);
+    Optional<User> findByUsernameRolesAndAuthorities(String username);
+
+    @Query("select u from User u where lower(u.username) = lower(?1) and u.status = 'ACTIVE' ")
+    Optional<User> findByUsername(String username);
 }

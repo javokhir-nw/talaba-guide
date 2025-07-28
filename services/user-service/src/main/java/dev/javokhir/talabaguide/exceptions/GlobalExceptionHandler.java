@@ -51,4 +51,17 @@ public class GlobalExceptionHandler extends RuntimeException {
                         .build()
         );
     }
+
+    @ExceptionHandler(MissingIdException.class)
+    public ResponseEntity<ErrorResponse> handleMissingIdErrors(MissingIdException ex,
+                                                               HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse.builder()
+                        .date(new Date())
+                        .error(HttpStatus.BAD_REQUEST.value())
+                        .message(ex.getMessage())
+                        .path(req.getRequestURI())
+                        .build()
+        );
+    }
 }

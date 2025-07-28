@@ -25,6 +25,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
+        final String apiKeyHeader = request.getHeader("X-API-KEY");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
@@ -40,6 +41,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); //spring takes ip address from underlying request
                     SecurityContextHolder.getContext().setAuthentication(token);
                 }
+            }
+        } else if(apiKeyHeader != null){
+
+            if (isValidApiKey(apiKeyHeader)) {
+                // You can assign a dummy user or system role
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_INTERNAL"));
+
+                UsernamePasswordAuthenticationToken apiAuth =
+                        new UsernamePasswordAuthenticationToken("api-client", null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(apiAuth);
+            } else {
+                throw new RuntimeException("Invalid API key");
             }
         }
         filterChain.doFilter(request,response);

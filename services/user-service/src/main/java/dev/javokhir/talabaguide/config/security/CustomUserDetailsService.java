@@ -1,5 +1,6 @@
 package dev.javokhir.talabaguide.config.security;
 
+import dev.javokhir.talabaguide.models.User;
 import dev.javokhir.talabaguide.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found by username:: " + username));
+        return userRepository.findByUsernameRolesAndAuthorities(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found by username = " + username));
     }
 }

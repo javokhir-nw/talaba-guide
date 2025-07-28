@@ -4,12 +4,13 @@ import dev.javokhir.talabaguide.config.jwt.JwtUtil;
 import dev.javokhir.talabaguide.dtos.UserLoginRequestDto;
 import dev.javokhir.talabaguide.dtos.UserRegisterRequestDto;
 import dev.javokhir.talabaguide.exceptions.DuplicateResourceException;
-import dev.javokhir.talabaguide.mappers.UserMapper.UserMapper;
+import dev.javokhir.talabaguide.mappers.UserMapper;
 import dev.javokhir.talabaguide.models.User;
 import dev.javokhir.talabaguide.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -34,14 +36,17 @@ public class UserService {
         String email = dto.email();
 
         if (checkIsExistUsername(username,null)){
+            log.warn("Try to create exist username:: {}",username);
             throw new DuplicateResourceException("username",username);
         }
 
         if (email != null && checkIsExistEmail(email,null)){
+            log.warn("Try to create exist email:: {}",email);
             throw new DuplicateResourceException("email",email);
         }
 
-        User user = repository.save(mapper.toUser(dto));
+        User user = mapper.toUser(dto);
+        log.info("User successfully saved by id:: {}",user.getId());
         return jwtUtil.generateToken(user);
     }
 
@@ -53,11 +58,7 @@ public class UserService {
         return repository.checkIsExistEmail(email,userId);
     }
 
-    public Optional<UserDetails> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    public String login(@Valid UserLoginRequestDto dto) {
+    public String login(UserLoginRequestDto dto) {
         Authentication authentication =
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(dto.username(),dto.password()));

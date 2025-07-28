@@ -1,12 +1,11 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 
 spring:
   application:
     name: user-service
-  data:
-    rest:
-      base-path: /api/v1
   datasource:
     password: root
     url: jdbc:postgresql://localhost:5432/student_guide
@@ -17,5 +16,6 @@ spring:
     show-sql: true
 security:
   jwt:
-    secret-key: this123-dasd123qwe123
+    secret-key: this123-dasd123qwe123*8q5weq5we4qwe1
     expiration-time: 7200000
+api-key: th1s-1s-6p1_k3y-is4-send1ng-6uth0rizat.i0ns-fr0w-an0t14er-s3rv1se
