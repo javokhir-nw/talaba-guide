@@ -16,4 +16,7 @@ public interface AuthorityRepository extends JpaRepository<Authority, Long> {
 
     @Query("select count(a) > 0 from Authority a where lower(a.name) = lower(?1)")
     boolean existsByName(String authorityName);
+
+    @Query("select lower(a) from Authority a")
+    List<String> findAllAuthNames();
 }

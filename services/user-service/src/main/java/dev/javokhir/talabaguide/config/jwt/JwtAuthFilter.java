@@ -42,18 +42,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(token);
                 }
             }
-        } else if(apiKeyHeader != null){
-
-            if (isValidApiKey(apiKeyHeader)) {
-                // You can assign a dummy user or system role
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_INTERNAL"));
-
-                UsernamePasswordAuthenticationToken apiAuth =
-                        new UsernamePasswordAuthenticationToken("api-client", null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(apiAuth);
-            } else {
-                throw new RuntimeException("Invalid API key");
-            }
         }
         filterChain.doFilter(request,response);
     }

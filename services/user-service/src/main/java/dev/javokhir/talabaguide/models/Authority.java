@@ -17,4 +17,5 @@ public class Authority {
     private String name;
     private String className;
     private String description;
+    private String serviceName;
 }

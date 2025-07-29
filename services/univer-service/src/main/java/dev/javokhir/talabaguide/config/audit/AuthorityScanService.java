@@ -1,12 +1,8 @@
 package dev.javokhir.talabaguide.config.audit;
 
-import dev.javokhir.talabaguide.dtos.FetchAuthoritiesDto;
-import dev.javokhir.talabaguide.models.Authority;
-import dev.javokhir.talabaguide.repositories.AuthorityRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,10 +11,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,11 +21,6 @@ import java.util.regex.Pattern;
 public class AuthorityScanService {
 
     private final ApplicationContext applicationContext;
-    private final AuthorityRepository repository;
-    private final AuthorityRepository authorityRepository;
-
-    @Value("${spring.application.name}")
-    private String serviceName;
 
     @PostConstruct
     public void scanAndSaveAuthorities() {
@@ -41,28 +29,20 @@ public class AuthorityScanService {
 
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(RestController.class);
 
-        List<Authority> authorities = new ArrayList<>();
+        Map<String,List<String>> authorities = new HashMap<>();
         for (Object bean : beans.values()) {
             Class<?> aClass = bean.getClass();
             Method[] methods = aClass.getMethods();
-
+            List<String> auth = new ArrayList<>();
             for (Method method : methods) {
                 PreAuthorize preAuth = AnnotationUtils.findAnnotation(method, PreAuthorize.class);
                 if (preAuth != null) {
-                    List<String> extractedAuthorities = extractAuthorities(preAuth.value());
-                    for (String authorityName : extractedAuthorities) {
-                        if (!repository.existsByName(authorityName)){
-                            Authority authority = new Authority();
-                            authority.setName(authorityName);
-                            authority.setServiceName(serviceName);
-                            authority.setClassName(ClassUtils.getUserClass(aClass).getSimpleName());
-                            authorities.add(authority);
-                        }
-                    }
+                    auth.addAll(extractAuthorities(preAuth.value()));
                 }
             }
+            authorities.put(ClassUtils.getUserClass(aClass).getSimpleName(),auth);
         }
-        authorityRepository.saveAll(authorities);
+         //todo send to user-service
     }
 
     private List<String> extractAuthorities(String value) {
